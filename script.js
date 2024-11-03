@@ -104,4 +104,29 @@ map.on('click', (e) => {
       .setContent(
         `<strong>LGA:</strong> ${lgaData.lga}<br>
          <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}`
+         
+// debugging
+fetch('LGAFluoride.geojson')
+  .then(response => response.json())
+  .then(data => {
+    console.log("LGA Data Loaded:", data);  // Log LGA data
+    lgaLayer = L.geoJson(data, {
+      style: getFluorideStyle,
+      onEachFeature: (feature, layer) => {
+        layer.bindPopup(`<strong>LGA:</strong> ${feature.properties.lga}<br><strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}`);
+      }
+    }).addTo(map);
+  });
+
+fetch('2024QldElection.geojson')
+  .then(response => response.json())
+  .then(data => {
+    console.log("Election Data Loaded:", data);  // Log Election data
+    electionLayer = L.geoJson(data, {
+      style: getElectionStyle,
+      onEachFeature: (feature, layer) => {
+        layer.bindPopup(`<strong>Electorate:</strong> ${feature.properties.electorate}<br><strong>Outcome:</strong> ${feature.properties.outcome}`);
+      }
+    }).addTo(map);
+  });       
      
