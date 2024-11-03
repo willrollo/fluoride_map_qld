@@ -25,9 +25,9 @@ function getElectionStyle(feature) {
   const outcome = feature.properties.outcome;
   let color;
 
-  if (outcome.includes('ALP')) {
+  if (outcome && outcome.includes('ALP')) {
     color = 'red';
-  } else if (outcome.includes('LNP')) {
+  } else if (outcome && outcome.includes('LNP')) {
     color = 'blue';
   } else {
     color = 'gray';
