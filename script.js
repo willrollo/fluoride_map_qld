@@ -68,18 +68,21 @@ fetch('2024QldElection.geojson')
 
 // Function to combine popup data from both layers on click
 map.on('click', (e) => {
-  // Variables to store data for the clicked area
+  const clickPoint = turf.point([e.latlng.lng, e.latlng.lat]);
   let lgaData = null;
   let electionData = null;
 
-  // Find LGA and election data for the clicked location
-  map.eachLayer((layer) => {
-    if (layer.feature && layer.getBounds().contains(e.latlng)) {
-      if (layer.feature.properties.lga) {
-        lgaData = layer.feature.properties;
-      } else if (layer.feature.properties.electorate) {
-        electionData = layer.feature.properties;
-      }
+  // Check LGA layer for a matching polygon
+  lgaLayer.eachLayer((layer) => {
+    if (turf.booleanPointInPolygon(clickPoint, layer.feature)) {
+      lgaData = layer.feature.properties;
+    }
+  });
+
+  // Check election layer for a matching polygon
+  electionLayer.eachLayer((layer) => {
+    if (turf.booleanPointInPolygon(clickPoint, layer.feature)) {
+      electionData = layer.feature.properties;
     }
   });
 
@@ -94,5 +97,12 @@ map.on('click', (e) => {
          <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}`
       )
       .openOn(map);
-  }
-});
+  } else if (lgaData) {
+    // Display only LGA data if no matching election data
+    L.popup()
+      .setLatLng(e.latlng)
+      .setContent(
+        `Election Boundaries not found<br>
+        <strong>LGA:</strong> ${lgaData.lga}<br>
+         <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}`
+     
