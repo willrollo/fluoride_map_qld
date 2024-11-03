@@ -24,7 +24,6 @@
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-pip@1.1.0/leaflet-pip.min.js"></script>
 <script>
     // Initialize the map centered on Queensland
     var map = L.map('map').setView([-20.0, 144.0], 6); // Center and zoom for all of Queensland
@@ -77,25 +76,33 @@
         let electionInfo = { electorate: 'N/A', outcome: 'N/A' };
         let fluorideInfo = { lga: 'N/A', fluoride_status: 'N/A' };
 
-        // Use leaflet-pip to check the clicked point within electionLayer
-        const electionResults = leafletPip.pointInLayer(e.latlng, electionLayer, true);
-        if (electionResults.length > 0) {
-            const electionFeature = electionResults[0].feature.properties;
-            electionInfo = {
-                electorate: electionFeature.name || 'N/A',
-                outcome: electionFeature.outcome || 'N/A'
-            };
-        }
+        // Check if the click intersects with any feature in electionLayer
+        electionLayer.eachLayer(function(layer) {
+            if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
+                // Additional check if point is truly inside polygon
+                if (leafletPip.pointInLayer(e.latlng, layer).length > 0) {
+                    const electionFeature = layer.feature.properties;
+                    electionInfo = {
+                        electorate: electionFeature.name || 'N/A',
+                        outcome: electionFeature.outcome || 'N/A'
+                    };
+                }
+            }
+        });
 
-        // Use leaflet-pip to check the clicked point within fluorideLayer
-        const fluorideResults = leafletPip.pointInLayer(e.latlng, fluorideLayer, true);
-        if (fluorideResults.length > 0) {
-            const fluorideFeature = fluorideResults[0].feature.properties;
-            fluorideInfo = {
-                lga: fluorideFeature.name || 'N/A',
-                fluoride_status: fluorideFeature.fluoride_status || 'N/A'
-            };
-        }
+        // Check if the click intersects with any feature in fluorideLayer
+        fluorideLayer.eachLayer(function(layer) {
+            if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
+                // Additional check if point is truly inside polygon
+                if (leafletPip.pointInLayer(e.latlng, layer).length > 0) {
+                    const fluorideFeature = layer.feature.properties;
+                    fluorideInfo = {
+                        lga: fluorideFeature.name || 'N/A',
+                        fluoride_status: fluorideFeature.fluoride_status || 'N/A'
+                    };
+                }
+            }
+        });
 
         // Display popup with combined information
         const popupContent = `
