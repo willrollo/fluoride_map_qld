@@ -87,6 +87,7 @@ map.on('click', (e) => {
   lgaLayer.eachLayer((layer) => {
     if (layer.feature && layer.feature.geometry && turf.booleanPointInPolygon(clickPoint, layer.feature)) {
       lgaData = layer.feature.properties;
+      console.log("LGA Match Found:", lgaData);  // Log LGA data
     }
   });
 
@@ -94,6 +95,7 @@ map.on('click', (e) => {
   electionLayer.eachLayer((layer) => {
     if (layer.feature && layer.feature.geometry && turf.booleanPointInPolygon(clickPoint, layer.feature)) {
       electionData = layer.feature.properties;
+      console.log("Election Match Found:", electionData);  // Log Election data
     }
   });
 
