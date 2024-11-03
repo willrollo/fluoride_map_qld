@@ -85,14 +85,14 @@ map.on('click', (e) => {
 
   // Check LGA layer for a matching polygon
   lgaLayer.eachLayer((layer) => {
-    if (turf.booleanPointInPolygon(clickPoint, layer.feature)) {
+    if (layer.feature && layer.feature.geometry && turf.booleanPointInPolygon(clickPoint, layer.feature)) {
       lgaData = layer.feature.properties;
     }
   });
 
   // Check election layer for a matching polygon
   electionLayer.eachLayer((layer) => {
-    if (turf.booleanPointInPolygon(clickPoint, layer.feature)) {
+    if (layer.feature && layer.feature.geometry && turf.booleanPointInPolygon(clickPoint, layer.feature)) {
       electionData = layer.feature.properties;
     }
   });
