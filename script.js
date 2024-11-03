@@ -50,7 +50,10 @@ fetch('LGAFluoride.geojson')
     lgaLayer = L.geoJson(data, {
       style: getFluorideStyle,
       onEachFeature: (feature, layer) => {
-        layer.bindPopup(`<strong>LGA:</strong> ${feature.properties.lga}<br><strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}`);
+        layer.bindPopup(`
+          <strong>LGA:</strong> ${feature.properties.lga}<br>
+          <strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}
+        `);
       }
     }).addTo(map);
   });
@@ -63,7 +66,10 @@ fetch('2024QldElection.geojson')
     electionLayer = L.geoJson(data, {
       style: getElectionStyle,
       onEachFeature: (feature, layer) => {
-        layer.bindPopup(`<strong>Electorate:</strong> ${feature.properties.electorate}<br><strong>Outcome:</strong> ${feature.properties.outcome}`);
+        layer.bindPopup(`
+          <strong>Electorate:</strong> ${feature.properties.electorate}<br>
+          <strong>Outcome:</strong> ${feature.properties.outcome}
+        `);
       }
     }).addTo(map);
   });
@@ -92,30 +98,32 @@ map.on('click', (e) => {
   if (lgaData && electionData) {
     L.popup()
       .setLatLng(e.latlng)
-      .setContent(
-        `<strong>Electorate:</strong> ${electionData.electorate}<br>
-         <strong>Outcome:</strong> ${electionData.outcome}<br>
-         <strong>LGA:</strong> ${lgaData.lga}<br>
-         <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}`
-      )
+      .setContent(`
+        <strong>Electorate:</strong> ${electionData.electorate}<br>
+        <strong>Outcome:</strong> ${electionData.outcome}<br>
+        <strong>LGA:</strong> ${lgaData.lga}<br>
+        <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}
+      `)
       .openOn(map);
+
   } else if (lgaData) {
     // Display only LGA data if no matching election data
     L.popup()
       .setLatLng(e.latlng)
-      .setContent(
-        `<strong>LGA:</strong> ${lgaData.lga}<br>
-         <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}`
-      )
+      .setContent(`
+        <strong>LGA:</strong> ${lgaData.lga}<br>
+        <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}
+      `)
       .openOn(map);
+
   } else if (electionData) {
     // Display only election data if no matching LGA data
     L.popup()
       .setLatLng(e.latlng)
-      .setContent(
-        `<strong>Electorate:</strong> ${electionData.electorate}<br>
-         <strong>Outcome:</strong> ${electionData.outcome}`
-      )
+      .setContent(`
+        <strong>Electorate:</strong> ${electionData.electorate}<br>
+        <strong>Outcome:</strong> ${electionData.outcome}
+      `)
       .openOn(map);
   }
 });
