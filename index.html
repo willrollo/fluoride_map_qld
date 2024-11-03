@@ -33,7 +33,7 @@
     // GeoJSON Layers (placeholders)
     let electionLayer, fluorideLayer;
 
-    // Load the 2024 QLD Election GeoJSON with styling from the file
+    // Load the 2024 QLD Election GeoJSON with styling and popups
     fetch('2024QldElection.geojson')
         .then(response => response.json())
         .then(data => {
@@ -47,14 +47,20 @@
                     };
                 },
                 onEachFeature: function (feature, layer) {
-                    // Add labels based on the 'name' property (area name)
+                    // Add area name as a tooltip
                     layer.bindTooltip(feature.properties.name, {permanent: true, direction: "center", className: "map-label"});
+
+                    // Display the area name and outcome as a popup
+                    layer.bindPopup(`
+                        <strong>Area:</strong> ${feature.properties.name}<br>
+                        <strong>Outcome:</strong> ${feature.properties.outcome}
+                    `);
                 }
             }).addTo(map);
         })
         .catch(error => console.error("Error loading election data:", error));
 
-    // Load the LGA Fluoride GeoJSON with styling from the file
+    // Load the LGA Fluoride GeoJSON with styling and popups
     fetch('LGAFluoride.geojson')
         .then(response => response.json())
         .then(data => {
@@ -66,6 +72,13 @@
                         weight: 1,
                         fillOpacity: feature.properties['fill-opacity'] || 0.7
                     };
+                },
+                onEachFeature: function (feature, layer) {
+                    // Display fluoride status in a popup
+                    layer.bindPopup(`
+                        <strong>Area:</strong> ${feature.properties.name}<br>
+                        <strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}
+                    `);
                 }
             });
         })
