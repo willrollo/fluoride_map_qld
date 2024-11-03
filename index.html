@@ -37,14 +37,11 @@
     // GeoJSON Layers
     let electionLayer, fluorideLayer;
 
-    // Store feature data to match LGA and Election info by location
-    const combinedFeatureData = {};
-
-    // Load the 2024 QLD Election GeoJSON with styling and add to combined data
+    // Load the 2024 QLD Election GeoJSON with styling and bind popups
     fetch('2024QldElection.geojson')
         .then(response => response.json())
-        .then(data => {
-            electionLayer = L.geoJSON(data, {
+        .then(electionData => {
+            electionLayer = L.geoJSON(electionData, {
                 style: function(feature) {
                     return {
                         color: feature.properties.stroke,    // Border color
@@ -54,34 +51,22 @@
                     };
                 },
                 onEachFeature: function (feature, layer) {
-                    // Store election info in combined data
-                    combinedFeatureData[feature.properties.name] = {
+                    // Store the election data in the layer's options for later use
+                    layer.options.electionInfo = {
                         electorate: feature.properties.name,
-                        outcome: feature.properties.outcome,
-                        lga: null,  // Placeholder for LGA info
-                        fluoride_status: null // Placeholder for fluoride status
+                        outcome: feature.properties.outcome
                     };
-
-                    // Bind a popup with combined information
-                    layer.on('click', function() {
-                        const info = combinedFeatureData[feature.properties.name];
-                        layer.bindPopup(`
-                            <strong>Electorate:</strong> ${info.electorate || 'N/A'}<br>
-                            <strong>Outcome:</strong> ${info.outcome || 'N/A'}<br>
-                            <strong>LGA:</strong> ${info.lga || 'N/A'}<br>
-                            <strong>Fluoride Status:</strong> ${info.fluoride_status || 'N/A'}
-                        `).openPopup();
-                    });
+                    layer.bindPopup(getPopupContent(layer));
                 }
             }).addTo(map);
         })
         .catch(error => console.error("Error loading election data:", error));
 
-    // Load the LGA Fluoride GeoJSON with styling and add to combined data
+    // Load the LGA Fluoride GeoJSON with styling and bind popups
     fetch('LGAFluoride.geojson')
         .then(response => response.json())
-        .then(data => {
-            fluorideLayer = L.geoJSON(data, {
+        .then(fluorideData => {
+            fluorideLayer = L.geoJSON(fluorideData, {
                 style: function(feature) {
                     return {
                         color: feature.properties.stroke,    // Border color
@@ -91,35 +76,28 @@
                     };
                 },
                 onEachFeature: function (feature, layer) {
-                    // Check if this LGA exists in the combined data
-                    if (combinedFeatureData[feature.properties.name]) {
-                        // Update existing entry with fluoride info
-                        combinedFeatureData[feature.properties.name].lga = feature.properties.name;
-                        combinedFeatureData[feature.properties.name].fluoride_status = feature.properties.fluoride_status;
-                    } else {
-                        // Create a new entry if not present in the combined data
-                        combinedFeatureData[feature.properties.name] = {
-                            electorate: null,
-                            outcome: null,
-                            lga: feature.properties.name,
-                            fluoride_status: feature.properties.fluoride_status
-                        };
-                    }
-
-                    // Bind a popup with combined information
-                    layer.on('click', function() {
-                        const info = combinedFeatureData[feature.properties.name];
-                        layer.bindPopup(`
-                            <strong>Electorate:</strong> ${info.electorate || 'N/A'}<br>
-                            <strong>Outcome:</strong> ${info.outcome || 'N/A'}<br>
-                            <strong>LGA:</strong> ${info.lga || 'N/A'}<br>
-                            <strong>Fluoride Status:</strong> ${info.fluoride_status || 'N/A'}
-                        `).openPopup();
-                    });
+                    // Store the fluoride data in the layer's options for later use
+                    layer.options.fluorideInfo = {
+                        lga: feature.properties.name,
+                        fluoride_status: feature.properties.fluoride_status
+                    };
+                    layer.bindPopup(getPopupContent(layer));
                 }
             }).addTo(map);
         })
         .catch(error => console.error("Error loading fluoride data:", error));
+
+    // Function to generate popup content with combined information
+    function getPopupContent(layer) {
+        const electionInfo = layer.options.electionInfo || {};
+        const fluorideInfo = layer.options.fluorideInfo || {};
+        return `
+            <strong>Electorate:</strong> ${electionInfo.electorate || 'N/A'}<br>
+            <strong>Outcome:</strong> ${electionInfo.outcome || 'N/A'}<br>
+            <strong>LGA:</strong> ${fluorideInfo.lga || 'N/A'}<br>
+            <strong>Fluoride Status:</strong> ${fluorideInfo.fluoride_status || 'N/A'}
+        `;
+    }
 
     // Function to toggle layers
     function toggleLayer(layer) {
