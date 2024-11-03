@@ -61,13 +61,17 @@ fetch('LGAFluoride.geojson')
 fetch('2024QldElection.geojson')
   .then(response => response.json())
   .then(data => {
-    console.log("Election Data Loaded:", data);  // Log Election data
+    console.log("Election Data Loaded:", data);  // Log to confirm data load
     electionLayer = L.geoJson(data, {
       style: getElectionStyle,
       onEachFeature: (feature, layer) => {
+        console.log("Election Feature Properties:", feature.properties);  // Log properties for debugging
+        // Bind popup with electorate and outcome if they exist
+        const electorate = feature.properties.electorate;
+        const outcome = feature.properties.outcome;
         layer.bindPopup(`
-          <strong>Electorate:</strong> ${feature.properties.electorate}<br>
-          <strong>Outcome:</strong> ${feature.properties.outcome}
+          <strong>Electorate:</strong> ${electorate ? electorate : 'Unknown'}<br>
+          <strong>Outcome:</strong> ${outcome ? outcome : 'Unknown'}
         `);
       }
     }).addTo(map);
