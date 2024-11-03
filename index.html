@@ -82,7 +82,7 @@
         if (electionMatches.length > 0) {
             const electionFeature = electionMatches[0].feature.properties;
             electionInfo = {
-                electorate: electionFeature.name || 'N/A',  // "name" is the electorate name in election data
+                electorate: electionFeature.name || 'N/A',  // Assume "name" is the electorate name in election data
                 outcome: electionFeature.outcome || 'N/A'
             };
         }
@@ -92,7 +92,7 @@
         if (fluorideMatches.length > 0) {
             const fluorideFeature = fluorideMatches[0].feature.properties;
             fluorideInfo = {
-                lga: fluorideFeature.name || 'N/A',  //  "name" is the LGA name in fluoride data
+                lga: fluorideFeature.name || 'N/A',  // Assume "name" is the LGA name in fluoride data
                 fluoride_status: fluorideFeature.fluoride_status || 'N/A'
             };
         }
