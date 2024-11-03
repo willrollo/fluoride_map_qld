@@ -50,16 +50,10 @@ fetch('LGAFluoride.geojson')
     lgaLayer = L.geoJson(data, {
       style: getFluorideStyle,
       onEachFeature: (feature, layer) => {
-        // Add click event for LGA layer
-        layer.on('click', (e) => {
-          L.popup()
-            .setLatLng(e.latlng)
-            .setContent(`
-              <strong>LGA:</strong> ${feature.properties.lga}<br>
-              <strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}
-            `)
-            .openOn(map);
-        });
+        layer.bindPopup(`
+          <strong>LGA:</strong> ${feature.properties.lga}<br>
+          <strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}
+        `);
       }
     }).addTo(map);
   });
@@ -72,16 +66,28 @@ fetch('2024QldElection.geojson')
     electionLayer = L.geoJson(data, {
       style: getElectionStyle,
       onEachFeature: (feature, layer) => {
-        // Add click event for election layer
-        layer.on('click', (e) => {
-          L.popup()
-            .setLatLng(e.latlng)
-            .setContent(`
-              <strong>Electorate:</strong> ${feature.properties.electorate}<br>
-              <strong>Outcome:</strong> ${feature.properties.outcome}
-            `)
-            .openOn(map);
-        });
+        layer.bindPopup(`
+          <strong>Electorate:</strong> ${feature.properties.electorate}<br>
+          <strong>Outcome:</strong> ${feature.properties.outcome}
+        `);
       }
     }).addTo(map);
   });
+
+// Function to toggle layers based on checkbox
+function toggleLayer(layer, isChecked) {
+  if (isChecked) {
+    map.addLayer(layer);
+  } else {
+    map.removeLayer(layer);
+  }
+}
+
+// Event listeners for the checkboxes
+document.getElementById('toggle-lga').addEventListener('change', (e) => {
+  toggleLayer(lgaLayer, e.target.checked);
+});
+
+document.getElementById('toggle-election').addEventListener('change', (e) => {
+  toggleLayer(electionLayer, e.target.checked);
+});
