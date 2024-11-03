@@ -22,7 +22,7 @@ function getFluorideStyle(feature) {
 
 // Function to style election results based on party preference
 function getElectionStyle(feature) {
-  const outcome = feature.properties.outcome;
+  const outcome = feature.properties ? feature.properties.outcome : null;
   let color;
 
   if (outcome && outcome.includes('ALP')) {
@@ -41,7 +41,6 @@ function getElectionStyle(feature) {
     fillOpacity: 0.5
   };
 }
-
 // Load and display the LGA fluoride status GeoJSON
 fetch('LGAFluoride.geojson')
   .then(response => response.json())
