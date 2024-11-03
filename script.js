@@ -102,7 +102,6 @@ map.on('click', (e) => {
     L.popup()
       .setLatLng(e.latlng)
       .setContent(
-        `Election Boundaries not found<br>
-        <strong>LGA:</strong> ${lgaData.lga}<br>
+        `<strong>LGA:</strong> ${lgaData.lga}<br>
          <strong>Fluoride Status:</strong> ${lgaData.fluoride_status}`
      
