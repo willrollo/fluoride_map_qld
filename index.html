@@ -37,7 +37,7 @@
     // GeoJSON Layers
     let electionLayer, fluorideLayer;
 
-    // Load the 2024 QLD Election GeoJSON with styling and bind popups
+    // Load the 2024 QLD Election GeoJSON with styling
     fetch('2024QldElection.geojson')
         .then(response => response.json())
         .then(electionData => {
@@ -49,20 +49,12 @@
                         weight: 1,
                         fillOpacity: feature.properties['fill-opacity'] || 0.7
                     };
-                },
-                onEachFeature: function (feature, layer) {
-                    // Store the election data in the layer's options for later use
-                    layer.options.electionInfo = {
-                        electorate: feature.properties.name,
-                        outcome: feature.properties.outcome
-                    };
-                    layer.bindPopup(getPopupContent(layer));
                 }
             }).addTo(map);
         })
         .catch(error => console.error("Error loading election data:", error));
 
-    // Load the LGA Fluoride GeoJSON with styling and bind popups
+    // Load the LGA Fluoride GeoJSON with styling
     fetch('LGAFluoride.geojson')
         .then(response => response.json())
         .then(fluorideData => {
@@ -74,30 +66,51 @@
                         weight: 1,
                         fillOpacity: feature.properties['fill-opacity'] || 0.7
                     };
-                },
-                onEachFeature: function (feature, layer) {
-                    // Store the fluoride data in the layer's options for later use
-                    layer.options.fluorideInfo = {
-                        lga: feature.properties.name,
-                        fluoride_status: feature.properties.fluoride_status
-                    };
-                    layer.bindPopup(getPopupContent(layer));
                 }
             }).addTo(map);
         })
         .catch(error => console.error("Error loading fluoride data:", error));
 
-    // Function to generate popup content with combined information
-    function getPopupContent(layer) {
-        const electionInfo = layer.options.electionInfo || {};
-        const fluorideInfo = layer.options.fluorideInfo || {};
-        return `
-            <strong>Electorate:</strong> ${electionInfo.electorate || 'N/A'}<br>
-            <strong>Outcome:</strong> ${electionInfo.outcome || 'N/A'}<br>
-            <strong>LGA:</strong> ${fluorideInfo.lga || 'N/A'}<br>
-            <strong>Fluoride Status:</strong> ${fluorideInfo.fluoride_status || 'N/A'}
+    // Function to gather data from both layers at a clicked point
+    function onMapClick(e) {
+        let electionInfo = { electorate: 'N/A', outcome: 'N/A' };
+        let fluorideInfo = { lga: 'N/A', fluoride_status: 'N/A' };
+
+        // Check if the click intersects with any feature in electionLayer
+        electionLayer.eachLayer(function(layer) {
+            if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
+                electionInfo = {
+                    electorate: layer.feature.properties.name || 'N/A',
+                    outcome: layer.feature.properties.outcome || 'N/A'
+                };
+            }
+        });
+
+        // Check if the click intersects with any feature in fluorideLayer
+        fluorideLayer.eachLayer(function(layer) {
+            if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
+                fluorideInfo = {
+                    lga: layer.feature.properties.name || 'N/A',
+                    fluoride_status: layer.feature.properties.fluoride_status || 'N/A'
+                };
+            }
+        });
+
+        // Display popup with combined information
+        const popupContent = `
+            <strong>Electorate:</strong> ${electionInfo.electorate}<br>
+            <strong>Outcome:</strong> ${electionInfo.outcome}<br>
+            <strong>LGA:</strong> ${fluorideInfo.lga}<br>
+            <strong>Fluoride Status:</strong> ${fluorideInfo.fluoride_status}
         `;
+        L.popup()
+            .setLatLng(e.latlng)
+            .setContent(popupContent)
+            .openOn(map);
     }
+
+    // Attach click event to the map
+    map.on('click', onMapClick);
 
     // Function to toggle layers
     function toggleLayer(layer) {
