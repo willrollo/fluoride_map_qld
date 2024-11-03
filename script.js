@@ -9,36 +9,25 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let lgaLayer, electionLayer;
 
-// Function to style LGAs based on fluoride status
+// Function to style LGAs based on the 'fill' color in the GeoJSON
 function getFluorideStyle(feature) {
   return {
-    fillColor: feature.properties.fluoride_status === 'Fluoride free' ? 'gray' : 'blue',
+    fillColor: feature.properties.fill || 'gray',  // Default to gray if 'fill' is missing
     weight: 1,
     opacity: 1,
     color: 'white',
-    fillOpacity: 0.7
+    fillOpacity: feature.properties['fill-opacity'] || 0.7  // Default to 0.7 if 'fill-opacity' is missing
   };
 }
 
-// Function to style election results based on party preference
+// Function to style election results based on the 'fill' color in the GeoJSON
 function getElectionStyle(feature) {
-  const outcome = feature.properties ? feature.properties.outcome : null;
-  let color;
-
-  if (outcome && outcome.includes('ALP')) {
-    color = 'red';
-  } else if (outcome && outcome.includes('LNP')) {
-    color = 'blue';
-  } else {
-    color = 'gray';
-  }
-
   return {
-    fillColor: color,
+    fillColor: feature.properties.fill || 'gray',  // Default to gray if 'fill' is missing
     weight: 1,
     opacity: 1,
     color: 'white',
-    fillOpacity: 0.5
+    fillOpacity: feature.properties['fill-opacity'] || 0.5  // Default to 0.5 if 'fill-opacity' is missing
   };
 }
 
