@@ -13,16 +13,20 @@
 <body>
 
 <div class="button-container">
-    <button onclick="showElectionMap()">2024 QLD Election</button>
-    <button onclick="showFluorideMap()">LGA Fluoride Status</button>
+    <label>
+        <input type="checkbox" id="toggleElection" checked onchange="toggleLayer(electionLayer)"> 2024 QLD Election
+    </label>
+    <label>
+        <input type="checkbox" id="toggleFluoride" checked onchange="toggleLayer(fluorideLayer)"> LGA Fluoride Status
+    </label>
 </div>
 
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-    // Initialize the map
-    var map = L.map('map').setView([-27.5, 153], 6); // Center on Queensland
+    // Initialize the map centered on Queensland
+    var map = L.map('map').setView([-20.0, 144.0], 6); // Center and zoom for all of Queensland
 
     // Base Layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -30,7 +34,7 @@
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // GeoJSON Layers (placeholders)
+    // GeoJSON Layers
     let electionLayer, fluorideLayer;
 
     // Load the 2024 QLD Election GeoJSON with styling and popups
@@ -47,13 +51,10 @@
                     };
                 },
                 onEachFeature: function (feature, layer) {
-                    // Add area name as a tooltip
-                    layer.bindTooltip(feature.properties.name, {permanent: true, direction: "center", className: "map-label"});
-
-                    // Display the area name and outcome as a popup
+                    // Add a combined popup with Electorate and Outcome
                     layer.bindPopup(`
-                        <strong>Electorate:</strong> ${feature.properties.name}<br>
-                        <strong>Outcome:</strong> ${feature.properties.outcome}
+                        <strong>Electorate:</strong> ${feature.properties.name || 'N/A'}<br>
+                        <strong>Outcome:</strong> ${feature.properties.outcome || 'N/A'}
                     `);
                 }
             }).addTo(map);
@@ -74,25 +75,25 @@
                     };
                 },
                 onEachFeature: function (feature, layer) {
-                    // Display fluoride status in a popup
+                    // Add a combined popup with LGA and Fluoride Status
                     layer.bindPopup(`
-                        <strong>LGA:</strong> ${feature.properties.name}<br>
-                        <strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}
+                        <strong>LGA:</strong> ${feature.properties.name || 'N/A'}<br>
+                        <strong>Fluoride Status:</strong> ${feature.properties.fluoride_status || 'N/A'}
                     `);
                 }
-            });
+            }).addTo(map);
         })
         .catch(error => console.error("Error loading fluoride data:", error));
 
-    // Functions to toggle layers
-    function showElectionMap() {
-        if (fluorideLayer) map.removeLayer(fluorideLayer);
-        if (electionLayer) map.addLayer(electionLayer);
-    }
-
-    function showFluorideMap() {
-        if (electionLayer) map.removeLayer(electionLayer);
-        if (fluorideLayer) map.addLayer(fluorideLayer);
+    // Function to toggle layers
+    function toggleLayer(layer) {
+        if (layer) {
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+            } else {
+                map.addLayer(layer);
+            }
+        }
     }
 </script>
 
