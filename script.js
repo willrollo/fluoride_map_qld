@@ -32,19 +32,15 @@ fetch('LGAFluoride.geojson')
 
 // Function to style election results based on party preference
 function getElectionStyle(feature) {
-  const party = feature.properties.party; // Replace with the actual party property from your GeoJSON
+  const outcome = feature.properties.outcome; // Using 'outcome' property for election result
   let color;
 
-  switch (party) {
-    case 'Labor':
-      color = 'red';
-      break;
-    case 'LNP':
-      color = 'blue';
-      break;
-    // Add other parties as needed
-    default:
-      color = 'gray';
+  if (outcome.includes('ALP')) {
+    color = 'red';
+  } else if (outcome.includes('LNP')) {
+    color = 'blue';
+  } else {
+    color = 'gray';
   }
 
   return {
@@ -63,7 +59,7 @@ fetch('2024QldElection.geojson')
     L.geoJson(data, {
       style: getElectionStyle,
       onEachFeature: (feature, layer) => {
-        layer.bindPopup(`<strong>${feature.properties.Seat_Name}</strong><br>Party: ${feature.properties.party}`);
+        layer.bindPopup(`<strong>${feature.properties.electorate}</strong><br>Party Outcome: ${feature.properties.outcome}`);
       }
     }).addTo(map);
   });
