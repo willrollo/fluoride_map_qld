@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluoride vs Freedom</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 80vh; }
+        .button-container, .file-container { text-align: center; margin: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="file-container">
+    <label for="electionFile">Load 2024 QLD Election GeoJSON:</label>
+    <input type="file" id="electionFile" accept=".geojson" onchange="loadElectionFile(event)">
+    <br><br>
+    <label for="fluorideFile">Load LGA Fluoride GeoJSON:</label>
+    <input type="file" id="fluorideFile" accept=".geojson" onchange="loadFluorideFile(event)">
+</div>
+
+<div class="button-container">
+    <button onclick="showElectionMap()">2024 QLD Election</button>
+    <button onclick="showFluorideMap()">LGA Fluoride Status</button>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Initialize the map
+    var map = L.map('map').setView([-27.5, 153], 6); // Center on Queensland
+
+    // Base Layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // GeoJSON Layers (placeholders)
+    let electionLayer, fluorideLayer;
+
+    // Load the 2024 QLD Election GeoJSON from file input
+    function loadElectionFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = JSON.parse(e.target.result);
+                electionLayer = L.geoJSON(data);
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    // Load the LGA Fluoride GeoJSON from file input
+    function loadFluorideFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = JSON.parse(e.target.result);
+                fluorideLayer = L.geoJSON(data);
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    // Functions to toggle layers
+    function showElectionMap() {
+        if (fluorideLayer) map.removeLayer(fluorideLayer);
+        if (electionLayer) map.addLayer(electionLayer);
+    }
+
+    function showFluorideMap() {
+        if (electionLayer) map.removeLayer(electionLayer);
+        if (fluorideLayer) map.addLayer(fluorideLayer);
+    }
+</script>
+
+</body>
+</html>
