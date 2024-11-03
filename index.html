@@ -6,19 +6,11 @@
     <title>Fluoride vs Freedom</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        #map { height: 80vh; }
-        .button-container, .file-container { text-align: center; margin: 10px; }
+        #map { height: 90vh; }
+        .button-container { text-align: center; margin: 10px; }
     </style>
 </head>
 <body>
-
-<div class="file-container">
-    <label for="electionFile">Load 2024 QLD Election GeoJSON:</label>
-    <input type="file" id="electionFile" accept=".geojson" onchange="loadElectionFile(event)">
-    <br><br>
-    <label for="fluorideFile">Load LGA Fluoride GeoJSON:</label>
-    <input type="file" id="fluorideFile" accept=".geojson" onchange="loadFluorideFile(event)">
-</div>
 
 <div class="button-container">
     <button onclick="showElectionMap()">2024 QLD Election</button>
@@ -41,31 +33,21 @@
     // GeoJSON Layers (placeholders)
     let electionLayer, fluorideLayer;
 
-    // Load the 2024 QLD Election GeoJSON from file input
-    function loadElectionFile(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = JSON.parse(e.target.result);
-                electionLayer = L.geoJSON(data);
-            };
-            reader.readAsText(file);
-        }
-    }
+    // Load the 2024 QLD Election GeoJSON
+    fetch('2024QldElection.geojson')
+        .then(response => response.json())
+        .then(data => {
+            electionLayer = L.geoJSON(data);
+        })
+        .catch(error => console.error("Error loading election data:", error));
 
-    // Load the LGA Fluoride GeoJSON from file input
-    function loadFluorideFile(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = JSON.parse(e.target.result);
-                fluorideLayer = L.geoJSON(data);
-            };
-            reader.readAsText(file);
-        }
-    }
+    // Load the LGA Fluoride GeoJSON
+    fetch('LGAFluoride.geojson')
+        .then(response => response.json())
+        .then(data => {
+            fluorideLayer = L.geoJSON(data);
+        })
+        .catch(error => console.error("Error loading fluoride data:", error));
 
     // Functions to toggle layers
     function showElectionMap() {
