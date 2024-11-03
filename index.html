@@ -52,7 +52,7 @@
 
                     // Display the area name and outcome as a popup
                     layer.bindPopup(`
-                        <strong>Area:</strong> ${feature.properties.name}<br>
+                        <strong>Electorate:</strong> ${feature.properties.name}<br>
                         <strong>Outcome:</strong> ${feature.properties.outcome}
                     `);
                 }
@@ -76,7 +76,7 @@
                 onEachFeature: function (feature, layer) {
                     // Display fluoride status in a popup
                     layer.bindPopup(`
-                        <strong>Area:</strong> ${feature.properties.name}<br>
+                        <strong>LGA:</strong> ${feature.properties.name}<br>
                         <strong>Fluoride Status:</strong> ${feature.properties.fluoride_status}
                     `);
                 }
