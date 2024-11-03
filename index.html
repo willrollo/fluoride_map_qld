@@ -1,129 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluoride vs Freedom</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        #map { height: 90vh; }
-        .button-container { text-align: center; margin: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Queensland Fluoride and Election Map</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
 <body>
-
-<div class="button-container">
-    <label>
-        <input type="checkbox" id="toggleElection" checked onchange="toggleLayer(electionLayer)"> 2024 QLD Election
-    </label>
-    <label>
-        <input type="checkbox" id="toggleFluoride" checked onchange="toggleLayer(fluorideLayer)"> LGA Fluoride Status
-    </label>
-</div>
-
-<div id="map"></div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-pip@1.1.0/leaflet-pip.min.js"></script> <!-- Import leaflet-pip for exact point-in-polygon check -->
-<script>
-    // Initialize the map centered on Queensland
-    var map = L.map('map').setView([-20.0, 144.0], 6); // Center and zoom for all of Queensland
-
-    // Base Layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // GeoJSON Layers
-    let electionLayer, fluorideLayer;
-
-    // Load the 2024 QLD Election GeoJSON with styling
-    fetch('2024QldElection.geojson')
-        .then(response => response.json())
-        .then(electionData => {
-            electionLayer = L.geoJSON(electionData, {
-                style: function(feature) {
-                    return {
-                        color: feature.properties.stroke,    // Border color
-                        fillColor: feature.properties.fill,  // Fill color
-                        weight: 1,
-                        fillOpacity: feature.properties['fill-opacity'] || 0.7
-                    };
-                }
-            }).addTo(map);
-        })
-        .catch(error => console.error("Error loading election data:", error));
-
-    // Load the LGA Fluoride GeoJSON with styling
-    fetch('LGAFluoride.geojson')
-        .then(response => response.json())
-        .then(fluorideData => {
-            fluorideLayer = L.geoJSON(fluorideData, {
-                style: function(feature) {
-                    return {
-                        color: feature.properties.stroke,    // Border color
-                        fillColor: feature.properties.fill,  // Fill color
-                        weight: 1,
-                        fillOpacity: feature.properties['fill-opacity'] || 0.7
-                    };
-                }
-            }).addTo(map);
-        })
-        .catch(error => console.error("Error loading fluoride data:", error));
-
-    // Function to handle clicks on the map and retrieve data from both layers
-    function onMapClick(e) {
-        let electionInfo = { electorate: 'N/A', outcome: 'N/A' };
-        let fluorideInfo = { lga: 'N/A', fluoride_status: 'N/A' };
-
-        // Check if the click intersects with any feature in electionLayer
-        const electionMatches = leafletPip.pointInLayer([e.latlng.lng, e.latlng.lat], electionLayer);
-        if (electionMatches.length > 0) {
-            const electionFeature = electionMatches[0].feature.properties;
-            electionInfo = {
-                electorate: electionFeature.name || 'N/A',  // Assume "name" is the electorate name in election data
-                outcome: electionFeature.outcome || 'N/A'
-            };
-        }
-
-        // Check if the click intersects with any feature in fluorideLayer
-        const fluorideMatches = leafletPip.pointInLayer([e.latlng.lng, e.latlng.lat], fluorideLayer);
-        if (fluorideMatches.length > 0) {
-            const fluorideFeature = fluorideMatches[0].feature.properties;
-            fluorideInfo = {
-                lga: fluorideFeature.name || 'N/A',  // Assume "name" is the LGA name in fluoride data
-                fluoride_status: fluorideFeature.fluoride_status || 'N/A'
-            };
-        }
-
-        // Display popup with combined information
-        const popupContent = `
-            <strong>Electorate:</strong> ${electionInfo.electorate}<br>
-            <strong>Outcome:</strong> ${electionInfo.outcome}<br>
-            <strong>LGA:</strong> ${fluorideInfo.lga}<br>
-            <strong>Fluoride Status:</strong> ${fluorideInfo.fluoride_status}
-        `;
-        L.popup()
-            .setLatLng(e.latlng)
-            .setContent(popupContent)
-            .openOn(map);
-    }
-
-    // Attach click event to the map
-    map.on('click', onMapClick);
-
-    // Function to toggle layers
-    function toggleLayer(layer) {
-        if (layer) {
-            if (map.hasLayer(layer)) {
-                map.removeLayer(layer);
-            } else {
-                map.addLayer(layer);
-            }
-        }
-    }
-</script>
-
+  <h1>Fluoride Status and Election Results in Queensland</h1>
+  <div id="map"></div>
+  <script src="script.js"></script>
 </body>
 </html>
