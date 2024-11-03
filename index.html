@@ -81,7 +81,7 @@
             if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
                 const feature = layer.feature;
                 electionInfo = {
-                    electorate: feature.properties.name || 'N/A',
+                    electorate: feature.properties.name || 'N/A',  // Assume "name" is the electorate name in election data
                     outcome: feature.properties.outcome || 'N/A'
                 };
             }
@@ -92,7 +92,7 @@
             if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
                 const feature = layer.feature;
                 fluorideInfo = {
-                    lga: feature.properties.name || 'N/A',
+                    lga: feature.properties.name || 'N/A',  // Assume "name" is the LGA name in fluoride data
                     fluoride_status: feature.properties.fluoride_status || 'N/A'
                 };
             }
