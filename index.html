@@ -37,6 +37,11 @@
     // GeoJSON Layers
     let electionLayer, fluorideLayer;
 
+    // Function to check if a point is inside a polygon
+    function isPointInPolygon(latlng, layer) {
+        return layer.getBounds().contains(latlng) && leafletPip.pointInLayer([latlng.lng, latlng.lat], layer).length > 0;
+    }
+
     // Load the 2024 QLD Election GeoJSON with styling
     fetch('2024QldElection.geojson')
         .then(response => response.json())
@@ -49,6 +54,11 @@
                         weight: 1,
                         fillOpacity: feature.properties['fill-opacity'] || 0.7
                     };
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.on('click', function (e) {
+                        displayPopup(e.latlng, feature.properties);
+                    });
                 }
             }).addTo(map);
         })
@@ -66,59 +76,36 @@
                         weight: 1,
                         fillOpacity: feature.properties['fill-opacity'] || 0.7
                     };
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.on('click', function (e) {
+                        displayPopup(e.latlng, feature.properties);
+                    });
                 }
             }).addTo(map);
         })
         .catch(error => console.error("Error loading fluoride data:", error));
 
-    // Function to gather data from both layers at a clicked point
-    function onMapClick(e) {
-        let electionInfo = { electorate: 'N/A', outcome: 'N/A' };
-        let fluorideInfo = { lga: 'N/A', fluoride_status: 'N/A' };
-
-        // Check if the click intersects with any feature in electionLayer
-        electionLayer.eachLayer(function(layer) {
-            if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
-                // Additional check if point is truly inside polygon
-                if (leafletPip.pointInLayer(e.latlng, layer).length > 0) {
-                    const electionFeature = layer.feature.properties;
-                    electionInfo = {
-                        electorate: electionFeature.name || 'N/A',
-                        outcome: electionFeature.outcome || 'N/A'
-                    };
-                }
-            }
-        });
-
-        // Check if the click intersects with any feature in fluorideLayer
-        fluorideLayer.eachLayer(function(layer) {
-            if (layer instanceof L.Polygon && layer.getBounds().contains(e.latlng)) {
-                // Additional check if point is truly inside polygon
-                if (leafletPip.pointInLayer(e.latlng, layer).length > 0) {
-                    const fluorideFeature = layer.feature.properties;
-                    fluorideInfo = {
-                        lga: fluorideFeature.name || 'N/A',
-                        fluoride_status: fluorideFeature.fluoride_status || 'N/A'
-                    };
-                }
-            }
-        });
+    // Function to display combined information in a popup
+    function displayPopup(latlng, properties) {
+        // Extract relevant properties
+        const electorate = properties.name || 'N/A';
+        const outcome = properties.outcome || 'N/A';
+        const lga = properties.name || 'N/A';
+        const fluorideStatus = properties.fluoride_status || 'N/A';
 
         // Display popup with combined information
         const popupContent = `
-            <strong>Electorate:</strong> ${electionInfo.electorate}<br>
-            <strong>Outcome:</strong> ${electionInfo.outcome}<br>
-            <strong>LGA:</strong> ${fluorideInfo.lga}<br>
-            <strong>Fluoride Status:</strong> ${fluorideInfo.fluoride_status}
+            <strong>Electorate:</strong> ${electorate}<br>
+            <strong>Outcome:</strong> ${outcome}<br>
+            <strong>LGA:</strong> ${lga}<br>
+            <strong>Fluoride Status:</strong> ${fluorideStatus}
         `;
         L.popup()
-            .setLatLng(e.latlng)
+            .setLatLng(latlng)
             .setContent(popupContent)
             .openOn(map);
     }
-
-    // Attach click event to the map
-    map.on('click', onMapClick);
 
     // Function to toggle layers
     function toggleLayer(layer) {
